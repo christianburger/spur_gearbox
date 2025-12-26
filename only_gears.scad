@@ -33,7 +33,7 @@ input_hub_diameter = 12;
 output_hub_diameter = 16;
 input_hub_height = 8;
 output_hub_height = 8;
-setscrew_diameter = 3.0;
+setscrew_diameter = 4.6;
 
 // NEMA17 PARAMETERS
 nema17_hole_spacing = 31;

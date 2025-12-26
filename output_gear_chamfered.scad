@@ -14,16 +14,18 @@ output_outer_radius = (module_size * (output_teeth + 2)) / 2;
 output_bore = 5.0;
 output_bore_tolerance = 0.6;
 
-output_hub_diameter = 16;
-output_hub_height = 8;
-setscrew_diameter = 2.8;
-setscrew_diameter_tolerance = 0.0;
+output_hub_diameter = 18;
+output_hub_height = 10;
+
+setscrew_diameter = 5.0;
+setscrew_diameter_tolerance = 0.6;
 
 chamfer_height = 2.0;
 chamfer_angle = 45;
 
 chamfer_cone_base_radius = output_outer_radius - chamfer_height * tan(chamfer_angle);
 base_radius = output_outer_radius;
+
 
 intersection() {
     translate([0, 0, tooth_width / 2]) {
@@ -46,16 +48,16 @@ intersection() {
             
             translate([0, 0, tooth_width/2 + output_hub_height/2])
                 rotate([90, 0, 0])
-                    cylinder(d = setscrew_diameter + setscrew_diameter_tolerance, h = output_hub_diameter, center = true);
+                    cylinder(d = setscrew_diameter - setscrew_diameter_tolerance, h = output_hub_diameter, center = true);
         }
     }
     
     union() {
-        translate([0, 0, output_hub_height + 0.01]) {
-            cylinder(r = output_outer_radius, h = output_hub_height );
+        translate([0, 0, tooth_width]) {
+            cylinder(r = chamfer_cone_base_radius, h = output_hub_height);
         }
-        
-        translate([0, 0, output_hub_height - chamfer_height]) {
+
+        translate([0, 0, tooth_width - chamfer_height]) {
             cylinder(
                 r1 = output_outer_radius,
                 r2 = chamfer_cone_base_radius,
@@ -74,6 +76,6 @@ intersection() {
         }
         
         translate([0, 0, chamfer_height])
-            cylinder(r = output_outer_radius, h = output_hub_height - 2 * chamfer_height);
+            cylinder(r = output_outer_radius, h = tooth_width - 2 * chamfer_height);
     }
 }
