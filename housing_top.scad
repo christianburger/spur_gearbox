@@ -1,53 +1,99 @@
+// Gearbox Housing Half for 4:1 Linear Gearbox
+// Using BOSL2 library
+// Print this TWICE to get both halves (they are identical)
+// 
 include <BOSL2/std.scad>
 include <BOSL2/gears.scad>
 
 $fn = 100;
 
+// GEAR PARAMETERS
 input_teeth = 8;
 output_teeth = 32;
 module_size = 1.156;
 tooth_width = 8;
+pressure_angle = 20;
 
+// CALCULATED GEAR DIMENSIONS
 input_pitch_radius = (module_size * input_teeth) / 2;
 output_pitch_radius = (module_size * output_teeth) / 2;
 center_distance = input_pitch_radius + output_pitch_radius + 0.5;
 input_outer_radius = (module_size * (input_teeth + 2)) / 2;
 output_outer_radius = (module_size * (output_teeth + 2)) / 2;
 
+// BEARING PARAMETERS (695ZZ: 5mm ID, 13mm OD, 4mm thickness)
 bearing_inner_diameter = 5;
 bearing_outer_diameter = 13;
 bearing_thickness = 4;
 
-nema17_hole_spacing = 31;
+// SHAFT/HUB PARAMETERS
+input_bore = 5.0;
+output_bore = 5.0;
+input_hub_diameter = 12;
+output_hub_diameter = 16;
+input_hub_height = 8;
+output_hub_height = 8;
+setscrew_diameter = 3.0;
 
+// NEMA17 PARAMETERS
+nema17_hole_spacing = 31;
+nema17_mount_hole = 3.2;
+nema17_body_size = 42.3;  // NEMA17 standard body size
+
+// HOUSING PARAMETERS
 wall_thickness = 2;
-floor_thickness = 2;
+floor_thickness = 2;  // Bottom floor thickness where bearings sit
 bearing_pocket_depth = bearing_thickness + 0.5;
 box_height = tooth_width / 2 + bearing_pocket_depth + 5;
 clearance = 12;
 
+// Add these variables in the HOUSING PARAMETERS section:
 bearing_pocket_tolerance = 0.3;
-boss_diameter = bearing_outer_diameter + bearing_pocket_tolerance + 8;
+boss_diameter = bearing_outer_diameter + bearing_pocket_tolerance + 10;
 
-min_length_for_gear = (input_outer_radius * 2) + (wall_thickness * 2) + (clearance * 2);
-min_length_for_nema17 = nema17_hole_spacing + (wall_thickness * 2) + 10;
-housing_length = max(min_length_for_gear, min_length_for_nema17);
+// HOUSING DIMENSIONS
+housing_width = nema17_body_size;  // 42.3mm to match NEMA17
+housing_length = 68;
 
-housing_width = 68;
+// AXLE POSITIONS
+// Input gear centered in X, positioned in Y
+input_x = housing_width / 2;
+input_y = 5.65 + nema17_hole_spacing / 2;  // Position to match NEMA17 mounting holes
 
-input_x = housing_length / 2;
-input_y = wall_thickness + input_outer_radius + clearance;
-
+// Output gear same X, extended in Y direction
 output_x = input_x;
 output_y = input_y + center_distance;
 
-difference() {
+// NEMA17 HOLE POSITIONS (31mm square pattern centered on input axle)
+nema17_hole1_x = input_x - nema17_hole_spacing / 2;
+nema17_hole1_y = input_y - nema17_hole_spacing / 2;
+nema17_hole2_x = input_x + nema17_hole_spacing / 2;
+nema17_hole2_y = input_y - nema17_hole_spacing / 2;
+nema17_hole3_x = input_x - nema17_hole_spacing / 2;
+nema17_hole3_y = input_y + nema17_hole_spacing / 2;
+nema17_hole4_x = input_x + nema17_hole_spacing / 2;
+nema17_hole4_y = input_y + nema17_hole_spacing / 2;
+
+
+
+// Variable definitions (add these in the HOUSING PARAMETERS section)
+bearing_retainer_height = 1;  // Height of retaining ring
+bearing_retainer_id = 6.0;  // Inner diameter for shaft clearance
+
+// REMOVE THIS
+z_displacement = 100;
+   
+///// TOP HOUSING 
+//translate([housing_width, 0, z_displacement]) { 
+//rotate([0, 180, 0]) { 
+
+ difference() {
     union() {
-        cube([housing_length, housing_width, box_height]);
+        cube([housing_width, housing_length, box_height]);
     }
     
     translate([wall_thickness, wall_thickness, floor_thickness])
-    cube([housing_length - (wall_thickness * 2), housing_width - (wall_thickness * 2),  
+    cube([housing_width - (wall_thickness * 2), housing_length - (wall_thickness * 2),  
               box_height]);
 
     translate([output_x, output_y, -0.1])
@@ -58,9 +104,28 @@ difference() {
 
 }
 
+
 translate([output_x, output_y, 0])
     difference() {
         cylinder(d = boss_diameter, h = bearing_pocket_depth);
         cylinder(d = bearing_outer_diameter + bearing_pocket_tolerance, h = bearing_pocket_depth + 0.2);
     }
-     
+    
+   
+
+
+// OUTPUT AXLE - Bearing retainer ring (top housing)
+translate([output_x, output_y, bearing_pocket_depth])
+    difference() {
+        cylinder(d = boss_diameter, h = bearing_retainer_height);
+        cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
+    }
+  
+
+
+
+
+
+
+
+

@@ -38,6 +38,7 @@ setscrew_diameter = 3.0;
 // NEMA17 PARAMETERS
 nema17_hole_spacing = 31;
 nema17_mount_hole = 3.2;
+nema17_body_size = 42.3;  // NEMA17 standard body size
 
 // HOUSING PARAMETERS
 wall_thickness = 2;
@@ -48,22 +49,16 @@ clearance = 12;
 
 // Add these variables in the HOUSING PARAMETERS section:
 bearing_pocket_tolerance = 0.3;
-boss_diameter = bearing_outer_diameter + bearing_pocket_tolerance + 8;
+boss_diameter = bearing_outer_diameter + bearing_pocket_tolerance + 10;
 
-
-// CALCULATE HOUSING DIMENSIONS
-// Length: input gear width + walls + clearance + NEMA17 considerations
-min_length_for_gear = (input_outer_radius * 2) + (wall_thickness * 2) + (clearance * 2);
-min_length_for_nema17 = nema17_hole_spacing + (wall_thickness * 2) + 10;
-housing_length = max(min_length_for_gear, min_length_for_nema17);
-
-// Width: Fixed to 68mm (Y direction)
-housing_width = 68;
+// HOUSING DIMENSIONS
+housing_width = nema17_body_size;  // 42.3mm to match NEMA17
+housing_length = 68;
 
 // AXLE POSITIONS
 // Input gear centered in X, positioned in Y
-input_x = housing_length / 2;
-input_y = wall_thickness + input_outer_radius + clearance;
+input_x = housing_width / 2;
+input_y = 5.65 + nema17_hole_spacing / 2;  // Position to match NEMA17 mounting holes
 
 // Output gear same X, extended in Y direction
 output_x = input_x;
@@ -79,11 +74,20 @@ nema17_hole3_y = input_y + nema17_hole_spacing / 2;
 nema17_hole4_x = input_x + nema17_hole_spacing / 2;
 nema17_hole4_y = input_y + nema17_hole_spacing / 2;
 
+
+
+// Variable definitions (add these in the HOUSING PARAMETERS section)
+bearing_retainer_height = 1;  // Height of retaining ring
+bearing_retainer_id = 6.0;  // Inner diameter for shaft clearance
+
+// REMOVE THIS
+z_displacement = 100;
+
 // HOUSING HALF
 difference() {
     union() {
         // Main box body
-        cube([housing_length, housing_width, box_height]);
+        cube([housing_width, housing_length, box_height]);
         
         // INPUT AXLE - Bearing boss (donut)
         translate([input_x, input_y, 0])
@@ -113,7 +117,7 @@ difference() {
  
     // Interior cavity for gears
     translate([wall_thickness, wall_thickness, floor_thickness])
-    cube([housing_length - (wall_thickness * 2), housing_width - (wall_thickness * 2),  
+    cube([housing_width - (wall_thickness * 2), housing_length - (wall_thickness * 2),  
               box_height]);
     
     // INPUT AXLE - Bearing pocket
@@ -152,3 +156,14 @@ translate([output_x, output_y, 0])
         cylinder(d = boss_diameter, h = bearing_pocket_depth);
         cylinder(d = bearing_outer_diameter + bearing_pocket_tolerance, h = bearing_pocket_depth + 0.2);
     }
+    
+
+// OUTPUT AXLE - Bearing retainer ring (bottom housing)
+translate([output_x, output_y, bearing_pocket_depth])
+    difference() {
+       cylinder(d = boss_diameter, h = bearing_retainer_height);
+        cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
+    }
+
+    
+    
