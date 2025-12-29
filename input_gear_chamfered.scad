@@ -20,7 +20,7 @@ clearance_bearing_pocket = 0.3;  // Bearing pocket clearance
 clearance_screw_hole = 0.0;      // M3 screw hole clearance
 clearance_boss_center = 0.3;     // Motor boss center clearance
 tolerance_shaft = 0.4;           // Shaft bore tolerance
-tolerance_output_bore = 0.6;     // Output gear bore tolerance
+tolerance_output_bore = 0.4;     // Output gear bore tolerance
 
 // ============================================================================
 // GEAR PARAMETERS
@@ -158,61 +158,70 @@ output_hole1_y = housing_length - nema17_hole_edge_distance;
 output_hole2_x = input_x + nema17_hole_spacing / 2;
 output_hole2_y = housing_length - nema17_hole_edge_distance;
 
-// OUTPUT GEAR (Green)
-color("lightgreen")
-translate([0,0,0]) {
-  rotate([0,0,0]) {
-    intersection() {
-          translate([0, 0, gear_thickness / 2]) {
-              difference() {
-                  union() {
-                      // Gear body
-                      spur_gear(
-                          mod = gear_module,
-                          teeth = teeth_output,
-                          thickness = gear_thickness,
-                          shaft_diam = shaft_diameter_output + tolerance_output_bore,
-                          pressure_angle = gear_pressure_angle
-                      );
-                      
-                      // Hub
-                      translate([0, 0, gear_thickness/2])
-                          cylinder(d = hub_diameter_output, h = hub_height_output);
-                  }
-                  
-                  // Bore
-                  translate([0, 0, gear_thickness/2])
-                      cylinder(d = shaft_diameter_output + tolerance_output_bore, h = hub_height_output);
-                  
-                  // Setscrew hole
-                  translate([0, 0, hub_height_output + (gear_thickness / 2) - 4])
-                      rotate([90, 0, 0])
-                          cylinder(d = setscrew_output_diameter - setscrew_output_clearance, 
-                                 h = hub_diameter_output, 
-                                 center = true);
-              }
-          }
-          
-          // Chamfer profile
-          union() {
-              translate([0, 0, gear_thickness]) {
-                  cylinder(r = chamfer_base_radius_output, h = hub_height_output);
-              }
-              translate([0, 0, gear_thickness - chamfer_height]) {
-                  cylinder(r1 = outer_radius_output, 
-                         r2 = chamfer_base_radius_output, 
-                         h = chamfer_height);
-              }
-              translate([0, 0, chamfer_height]) {
-                  mirror([0, 0, 1]) {
-                      cylinder(r1 = outer_radius_output, 
-                             r2 = chamfer_base_radius_output, 
-                             h = chamfer_height);
-                  }
-              }
-              translate([0, 0, chamfer_height])
-                  cylinder(r = outer_radius_output, h = gear_thickness - 2 * chamfer_height);
-          }
-      }
-  }
+// ============================================================================
+// GEARS (VISUALIZATION)
+// ============================================================================
+
+// INPUT GEAR (Blue)
+color("lightblue")
+translate([0, 0, 0]) {
+    // Hub with D-bore
+    translate([0, 0, gear_thickness/2 + hub_height_input])
+        rotate([180, 0, 0])
+            difference() {
+                translate([0, 0, gear_thickness/2])
+                    cylinder(d = hub_diameter_input, h = hub_height_input);
+                
+                // D-shaped bore
+                translate([0, 0, gear_thickness/2 - 0.1])
+                    linear_extrude(height = hub_height_input + 0.2) {
+                        difference() {
+                            circle(r = (shaft_diameter_input + tolerance_shaft) / 2);
+                            translate([-(shaft_diameter_input + tolerance_shaft)/2, 
+                                     -(shaft_diameter_input + tolerance_shaft)/2])
+                                square([shaft_diameter_input + tolerance_shaft, 
+                                       (shaft_diameter_input + tolerance_shaft)/2 - shaft_flat_height/2]);
+                        }
+                    }
+                
+                // Setscrew hole
+                translate([0, -hub_diameter_input, gear_thickness/2 + hub_height_input/2])
+                    rotate([90, 0, 0])
+                        cylinder(d = setscrew_input_diameter - setscrew_input_clearance, 
+                               h = hub_diameter_input * 2, 
+                               center = true);
+            }
+    
+    // Gear with chamfers
+    translate([0, 0, gear_thickness/2 + hub_height_input])
+        difference() {
+            spur_gear(
+                mod = gear_module,
+                teeth = teeth_input,
+                thickness = gear_thickness,
+                shaft_diam = shaft_diameter_input + tolerance_shaft,
+                pressure_angle = gear_pressure_angle
+            );
+            
+            // Top chamfer
+            difference() {
+                translate([0, 0, gear_thickness/2 - chamfer_height])
+                    cylinder(d = chamfer_base_radius_gear + 12, h = hub_height_input - chamfer_height);
+                translate([0, 0, gear_thickness/2 - chamfer_height])
+                    cylinder(r1 = chamfer_base_radius_gear, 
+                           r2 = chamfer_base_radius_input, 
+                           h = chamfer_height);
+            }
+            
+            // Bottom chamfer
+            mirror([0, 0, 1])
+                difference() {
+                    translate([0, 0, gear_thickness/2 - chamfer_height])
+                        cylinder(d = chamfer_base_radius_gear + 12, h = hub_height_input - chamfer_height);
+                    translate([0, 0, gear_thickness/2 - chamfer_height])
+                        cylinder(r1 = chamfer_base_radius_gear, 
+                               r2 = chamfer_base_radius_input, 
+                               h = chamfer_height);
+                }
+        }
 }

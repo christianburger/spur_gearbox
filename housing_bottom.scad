@@ -20,7 +20,7 @@ clearance_bearing_pocket = 0.3;  // Bearing pocket clearance
 clearance_screw_hole = 0.0;      // M3 screw hole clearance
 clearance_boss_center = 0.3;     // Motor boss center clearance
 tolerance_shaft = 0.4;           // Shaft bore tolerance
-tolerance_output_bore = 0.6;     // Output gear bore tolerance
+tolerance_output_bore = 0.4;     // Output gear bore tolerance
 
 // ============================================================================
 // GEAR PARAMETERS
@@ -107,10 +107,10 @@ bearing_retainer_height = 2.0;     // Retainer ring height
 bearing_retainer_id = 7.0;         // Retainer inner diameter
 boss_diameter = bearing_od + clearance_bearing_pocket + 10;
 
-clearance_internal_bottom = 1;   // Clearance below gears
-clearance_internal_top = 1;      // Clearance above gears
+clearance_internal_bottom = 1.5;   // Clearance below gears
+clearance_internal_top = 1.5;      // Clearance above gears
 
-box_height =  (
+box_height = (floor_thickness * 2 +          
               clearance_internal_bottom + 
               clearance_internal_top +
               max(hub_height_input, hub_height_output) + 
@@ -242,3 +242,36 @@ translate([output_x, output_y, bearing_pocket_depth])
         cylinder(d = boss_diameter, h = bearing_retainer_height);
         cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
     }
+
+    
+    
+    
+// ============================================================================
+// CORNER CHAMFERS
+// ============================================================================
+
+box_chamfer_size = 5;  // Chamfer dimension
+
+// Corner chamfer module (centered at internal corner, flush with walls)
+module corner_chamfer() {
+    rotate([0, 0, 45])
+        translate([-wall_thickness/2, -box_chamfer_size/sqrt(2), 0])
+            cube([wall_thickness, box_chamfer_size * sqrt(2), box_height]);
+}
+
+// Apply chamfers to BOTTOM housing (add inside the main difference() block)
+translate([wall_thickness + 2 * sin(45), wall_thickness + 2 * sin(45), 0]) 
+    corner_chamfer();
+translate([housing_width - wall_thickness - 2 * sin(45), wall_thickness + 2 * sin(45), 0]) 
+    rotate([0, 0, 90]) 
+        corner_chamfer();
+translate([housing_width - wall_thickness - 2 * sin(45), housing_length - wall_thickness - 2 * sin(45), 0]) 
+    rotate([0, 0, 180]) 
+        corner_chamfer();
+translate([wall_thickness + 2 * sin(45), housing_length - wall_thickness - 2 * sin(45), 0]) 
+    rotate([0, 0, 270]) 
+        corner_chamfer();
+    
+    
+
+    

@@ -20,7 +20,7 @@ clearance_bearing_pocket = 0.3;  // Bearing pocket clearance
 clearance_screw_hole = 0.0;      // M3 screw hole clearance
 clearance_boss_center = 0.3;     // Motor boss center clearance
 tolerance_shaft = 0.4;           // Shaft bore tolerance
-tolerance_output_bore = 0.6;     // Output gear bore tolerance
+tolerance_output_bore = 0.4;     // Output gear bore tolerance
 
 // ============================================================================
 // GEAR PARAMETERS

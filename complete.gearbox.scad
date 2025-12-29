@@ -20,7 +20,7 @@ clearance_bearing_pocket = 0.3;  // Bearing pocket clearance
 clearance_screw_hole = 0.0;      // M3 screw hole clearance
 clearance_boss_center = 0.3;     // Motor boss center clearance
 tolerance_shaft = 0.4;           // Shaft bore tolerance
-tolerance_output_bore = 0.6;     // Output gear bore tolerance
+tolerance_output_bore = 0.4;     // Output gear bore tolerance
 
 // ============================================================================
 // GEAR PARAMETERS
@@ -107,10 +107,10 @@ bearing_retainer_height = 2.0;     // Retainer ring height
 bearing_retainer_id = 7.0;         // Retainer inner diameter
 boss_diameter = bearing_od + clearance_bearing_pocket + 10;
 
-clearance_internal_bottom = 1;   // Clearance below gears
-clearance_internal_top = 1;      // Clearance above gears
+clearance_internal_bottom = 1.5;   // Clearance below gears
+clearance_internal_top = 1.5;      // Clearance above gears
 
-box_height =  (
+box_height = (floor_thickness * 2 +          
               clearance_internal_bottom + 
               clearance_internal_top +
               max(hub_height_input, hub_height_output) + 
