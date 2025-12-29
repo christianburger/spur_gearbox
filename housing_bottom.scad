@@ -245,6 +245,29 @@ difference() {
         corner_chamfer(cutting_width, box_chamfer_size);
       }
     }
+    
+    // Bottom-right corner
+    translate([housing_width + cutting_width/sqrt(2), cutting_width/sqrt(2), 0]){
+      rotate([0,0,135]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    // Top-left corner
+    translate([-cutting_width/sqrt(2), housing_length - cutting_width/sqrt(2), 0]){
+      rotate([0,0,315]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    // Top-right corner
+    translate([housing_width - cutting_width/sqrt(2), housing_length + cutting_width/sqrt(2), 0]){
+      rotate([0,0,225]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    
   }
 
 // Output bearing boss (outer)
@@ -269,5 +292,27 @@ translate([box_chamfer_size/sqrt(2), 0, 0]){
 }
 
 
+// Bottom-right corner
+translate([housing_width, box_chamfer_size/sqrt(2), 0]){
+  rotate([0,0,135]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
 
-    
+// Top-left corner
+translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
+  rotate([0,0,315]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
+
+
+// Top-right corner
+translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]){
+  rotate([0,0,225]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
+
+
+
