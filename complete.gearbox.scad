@@ -158,6 +158,15 @@ output_hole1_y = housing_length - nema17_hole_edge_distance;
 output_hole2_x = input_x + nema17_hole_spacing / 2;
 output_hole2_y = housing_length - nema17_hole_edge_distance;
 
+// corner chamfer   
+box_chamfer_width = wall_thickness;
+   
+
+module corner_chamfer(box_chamfer_width, box_chamfer_size) {
+  cube([box_chamfer_width, box_chamfer_size, box_height]);
+}
+
+
 // Visualization offsets
 z_offset_top_housing = 100;
 z_offset_gears = 40;
@@ -227,10 +236,42 @@ difference() {
         cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
     translate([output_hole2_x, output_hole2_y, 0])
         cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
-}
+        
+    // Box chamfers
+      
+    cutting_width = 5/2;
+    translate([cutting_width/sqrt(2), -cutting_width/sqrt(2), 0]){
+      rotate([0,0,45]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    // Bottom-right corner
+    translate([housing_width + cutting_width/sqrt(2), cutting_width/sqrt(2), 0]){
+      rotate([0,0,135]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    // Top-left corner
+    translate([-cutting_width/sqrt(2), housing_length - cutting_width/sqrt(2), 0]){
+      rotate([0,0,315]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    // Top-right corner
+    translate([housing_width - cutting_width/sqrt(2), housing_length + cutting_width/sqrt(2), 0]){
+      rotate([0,0,225]) {
+        corner_chamfer(cutting_width, box_chamfer_size);
+      }
+    }
+    
+    
+  }
 
 // Output bearing boss (outer)
-translate([output_x, output_y, 0])
+  translate([output_x, output_y, 0])
     difference() {
         cylinder(d = boss_diameter, h = bearing_pocket_depth);
         cylinder(d = bearing_od + clearance_bearing_pocket, h = bearing_pocket_depth + 0.2);
@@ -242,6 +283,36 @@ translate([output_x, output_y, bearing_pocket_depth])
         cylinder(d = boss_diameter, h = bearing_retainer_height);
         cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
     }
+
+box_chamfer_size = 5; 
+translate([box_chamfer_size/sqrt(2), 0, 0]){
+  rotate([0,0,45]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
+
+
+// Bottom-right corner
+translate([housing_width, box_chamfer_size/sqrt(2), 0]){
+  rotate([0,0,135]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
+
+// Top-left corner
+translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
+  rotate([0,0,315]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
+
+
+// Top-right corner
+translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]){
+  rotate([0,0,225]) {
+    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  }
+}
 
 // ============================================================================
 // TOP HOUSING HALF
@@ -283,6 +354,36 @@ translate([housing_width, 0, z_offset_top_housing]) {
                 cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
             translate([output_hole2_x, output_hole2_y, 0])
                 cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
+                
+            // Box chamfers
+              
+            cutting_width = 5/2;
+            translate([cutting_width/sqrt(2), -cutting_width/sqrt(2), 0]){
+              rotate([0,0,45]) {
+                corner_chamfer(cutting_width, box_chamfer_size);
+              }
+            }
+            
+            // Bottom-right corner
+            translate([housing_width + cutting_width/sqrt(2), cutting_width/sqrt(2), 0]){
+              rotate([0,0,135]) {
+                corner_chamfer(cutting_width, box_chamfer_size);
+              }
+            }
+            
+            // Top-left corner
+            translate([-cutting_width/sqrt(2), housing_length - cutting_width/sqrt(2), 0]){
+              rotate([0,0,315]) {
+                corner_chamfer(cutting_width, box_chamfer_size);
+              }
+            }
+            
+            // Top-right corner
+            translate([housing_width - cutting_width/sqrt(2), housing_length + cutting_width/sqrt(2), 0]){
+              rotate([0,0,225]) {
+                corner_chamfer(cutting_width, box_chamfer_size);
+              }
+            }
         }
         
         // Output bearing boss (outer)
@@ -298,6 +399,35 @@ translate([housing_width, 0, z_offset_top_housing]) {
                 cylinder(d = boss_diameter, h = bearing_retainer_height);
                 cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
             }
+        
+        translate([box_chamfer_size/sqrt(2), 0, 0]){
+          rotate([0,0,45]) {
+            corner_chamfer(box_chamfer_width, box_chamfer_size);
+          }
+        }
+        
+        
+        // Bottom-right corner
+        translate([housing_width, box_chamfer_size/sqrt(2), 0]){
+          rotate([0,0,135]) {
+            corner_chamfer(box_chamfer_width, box_chamfer_size);
+          }
+        }
+        
+        // Top-left corner
+        translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
+          rotate([0,0,315]) {
+            corner_chamfer(box_chamfer_width, box_chamfer_size);
+          }
+        }
+        
+        
+        // Top-right corner
+        translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]){
+          rotate([0,0,225]) {
+            corner_chamfer(box_chamfer_width, box_chamfer_size);
+          }
+        }
     }
 }
 
