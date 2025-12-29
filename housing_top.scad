@@ -19,17 +19,17 @@ $fn = 100;
 clearance_bearing_pocket = 0.3;  // Bearing pocket clearance
 clearance_screw_hole = 0.0;      // M3 screw hole clearance
 clearance_boss_center = 0.3;     // Motor boss center clearance
-tolerance_shaft = 0.2;           // Shaft bore tolerance
+tolerance_shaft = 0.4;           // Shaft bore tolerance
 tolerance_output_bore = 0.6;     // Output gear bore tolerance
 
 // ============================================================================
 // GEAR PARAMETERS
 // ============================================================================
 
-teeth_input = 8;
+teeth_input = 12;
 teeth_output = 32;
 gear_module = 1.156;
-gear_thickness = 8;
+gear_thickness = 10;
 gear_pressure_angle = 20;
 
 // Calculated gear dimensions
@@ -58,13 +58,17 @@ hub_diameter_input = 12;
 hub_height_input = 10;
 
 // Output shaft (round)
-shaft_diameter_output = 5.0;
+shaft_diameter_output = 9.0;
 hub_diameter_output = 18;
 hub_height_output = 10;
 
+// Setscrews (M3 grub screws)
+setscrew_output_diameter = 3.0;
+setscrew_output_clearance = 0.6;  // Undersize for PETG shrinkage
+
 // Setscrews (M5 grub screws)
-setscrew_diameter = 5.0;
-setscrew_clearance = 0.6;  // Undersize for PETG shrinkage
+setscrew_input_diameter = 5.0;
+setscrew_input_clearance = 0.6;  // Undersize for PETG shrinkage
 
 // Gear chamfers
 chamfer_height = 2.0;
@@ -88,8 +92,12 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // HOUSING DIMENSIONS
 // ============================================================================
 
+
+wall_to_gear_clearance = 5;
 housing_width = 50;                // X dimension (matches NEMA17)
-housing_length = 68;               // Y dimension
+
+//housing_length = 56;
+
 wall_thickness = 2;
 floor_thickness = 2;
 
@@ -99,14 +107,25 @@ bearing_retainer_height = 2.0;     // Retainer ring height
 bearing_retainer_id = 7.0;         // Retainer inner diameter
 boss_diameter = bearing_od + clearance_bearing_pocket + 10;
 
-clearance_internal_bottom = 1.2;   // Clearance below gears
-clearance_internal_top = 1.2;      // Clearance above gears
+clearance_internal_bottom = 1;   // Clearance below gears
+clearance_internal_top = 1;      // Clearance above gears
 
-box_height = (floor_thickness * 2 + 
+box_height =  (
               clearance_internal_bottom + 
+              clearance_internal_top +
               max(hub_height_input, hub_height_output) + 
               gear_thickness + 
-              clearance_internal_top) / 2;
+              bearing_retainer_height * 2 +
+              bearing_pocket_depth * 2) / 2;
+
+   
+echo ("clearance_internal_bottom: ", clearance_internal_bottom)
+echo ("clearance_internal_top", clearance_internal_top);
+echo ("hub_height (max)", max(hub_height_input, hub_height_output));
+echo ("gear_thickness: ", gear_thickness)
+echo ("bearing_retainer_height (x2): ", bearing_retainer_height * 2);
+echo ("bearing_pocket_depth: (x2)", bearing_pocket_depth * 2);   
+echo ("\n\n>>>>> box_height: ", box_height);
 
 // ============================================================================
 // CALCULATED POSITIONS
@@ -119,6 +138,9 @@ input_y = nema17_hole_edge_distance + nema17_hole_spacing / 2;
 // Output shaft position
 output_x = input_x;
 output_y = input_y + center_distance;
+
+housing_length = output_y + outer_radius_output + wall_to_gear_clearance;
+
 
 // NEMA17 mounting holes (31mm square pattern)
 nema17_hole1_x = input_x - nema17_hole_spacing / 2;
@@ -135,6 +157,10 @@ output_hole1_x = input_x - nema17_hole_spacing / 2;
 output_hole1_y = housing_length - nema17_hole_edge_distance;
 output_hole2_x = input_x + nema17_hole_spacing / 2;
 output_hole2_y = housing_length - nema17_hole_edge_distance;
+
+// Visualization offsets
+z_offset_top_housing = 100;
+z_offset_gears = 40;
 
 // ============================================================================
 // TOP HOUSING HALF
@@ -185,19 +211,12 @@ translate([0, 0, 0]) {
                 cylinder(d = bearing_od + clearance_bearing_pocket, h = bearing_pocket_depth + 0.2);
             }
         
-
-        
-       minimum_thickness = 0.8;
-      // Output bearing retainer ring (bottom) - Support-free version
-      translate([output_x, output_y, bearing_pocket_depth]) {
-        difference() {
-          cylinder(d = boss_diameter, h = bearing_retainer_height);
-          cylinder(d = bearing_retainer_id, h = bearing_retainer_height);
-          cylinder(d1 = boss_diameter,
-                  d2 = bearing_retainer_id,         
-                  h = bearing_retainer_height - minimum_thickness);
-        }
-      } 
+        // Output bearing retainer ring (top)
+        translate([output_x, output_y, bearing_pocket_depth])
+            difference() {
+                cylinder(d = boss_diameter, h = bearing_retainer_height);
+                cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
+            }
     }
 }
 
