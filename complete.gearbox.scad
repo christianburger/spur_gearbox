@@ -170,38 +170,33 @@ module corner_chamfer(box_chamfer_width, box_chamfer_size) {
   cube([box_chamfer_width, box_chamfer_size, box_height]);
 }
 
-module output_corner_reinforcement(reference_hole_x, reference_hole_y, box_chamfer_size, height) {
-    // Line parallel to chamfer (45° angle) passing through reference hole
-    // All coordinates are relative to chamfer origin
-    
-    // Intersection with right wall (relative x = box_chamfer_size/sqrt(2))
-    right_wall_y = -box_chamfer_size/sqrt(2) + (reference_hole_x + reference_hole_y);
-    
-    // Intersection with top wall (relative y = 0)
-    top_wall_x = reference_hole_x + reference_hole_y;
-    
-    translate([0, 0, floor_thickness]) {
-        linear_extrude(height = height - 2 * floor_thickness) {
-            polygon([
-                [top_wall_x, -wall_thickness],                                                    // Intersection with top wall (inset)
-                [0, -wall_thickness],                                                              // Chamfer corner on top wall (inset)
-                [box_chamfer_size/sqrt(2) - wall_thickness, -box_chamfer_size/sqrt(2)],          // Chamfer corner on right wall (inset)
-                [box_chamfer_size/sqrt(2) - wall_thickness, right_wall_y]                        // Intersection with right wall (inset)
-            ]);
-        }
-    }
-    
-    // Print all calculated parameters
-    echo("=== output_corner_reinforcement ===");
-    echo("reference_hole_x: ", reference_hole_x);
-    echo("reference_hole_y: ", reference_hole_y);
-    echo("box_chamfer_size: ", box_chamfer_size);
-    echo("height (input): ", height);
-    echo("right_wall_y: ", right_wall_y);
-    echo("top_wall_x: ", top_wall_x);
-    echo("extrusion_height: ", height - 2 * floor_thickness);
-    echo("starts at z: ", floor_thickness);
-    echo("ends at z: ", height - floor_thickness);
+// ==========================
+// Helper function
+// ==========================
+function polar(len, angle_deg) =
+    [ len * cos(angle_deg), len * sin(angle_deg) ];
+
+// ==========================
+// Module output_corner_reinforcement
+// ==========================
+module output_corner_reinforcement(chamfer_len, line_len, height)
+{
+    // Reference chamfer (XY plane, z = 0)
+    p0 = [0, 0];
+    p1 = [chamfer_len, 0];
+
+    // Constructed edges
+    p2 = p1 + polar(line_len,  45);   // +45° from right chamfer point
+    p3 = p0 + polar(line_len, 135);   // 135° from left chamfer point
+
+    // Extrude from z = 0 to z = height
+    linear_extrude(height = height)
+        polygon(points = [
+            p0,
+            p1,
+            p2,
+            p3
+        ]);
 }
 
 // Visualization offsets
@@ -328,33 +323,126 @@ translate([box_chamfer_size/sqrt(2), 0, 0]){
 }
 
 
-// Bottom-right corner
-translate([housing_width, box_chamfer_size/sqrt(2), 0]){
-  rotate([0,0,135]) {
-    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  // Bottom-right corner
+  translate([housing_width, box_chamfer_size/sqrt(2), 0]){
+    rotate([0,0,135]) {
+      corner_chamfer(box_chamfer_width, box_chamfer_size);
+    }
   }
-}
 
-// Top-left corner
-translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
-  rotate([0,0,315]) {
-    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  // Top-left corner
+  translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
+    rotate([0,0,315]) {
+      corner_chamfer(box_chamfer_width, box_chamfer_size);
+    }
   }
-}
 
 
   // Top-right corner
-  translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]){
-  rotate([0,0,225]) {
-    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]) {
+    rotate([0,0,225]) {
+      corner_chamfer(box_chamfer_width, box_chamfer_size);
+    }
   }
-  
-  // Output corner reinforcement
-  hole_x_rel = output_hole2_x - (housing_width - box_chamfer_size/sqrt(2));
-  hole_y_rel = output_hole2_y - housing_length;
+    
+  line_len    = 12;
+  internal_chamfer_len = 2 * wall_thickness / sqrt(2);
 
-  output_corner_reinforcement(hole_x_rel, hole_y_rel, box_chamfer_size, box_height * 2);
+  translate([
+      wall_thickness,
+      wall_thickness + internal_chamfer_len / sqrt(2),
+      0
+  ]) {
+  rotate([0, 0, -45]) {
+      output_corner_reinforcement(
+          chamfer_len = internal_chamfer_len,
+          line_len,
+          height      = box_height * 2
+      );
+     }
+  }
+   
+
+  
+ 
+
+
+// ================================
+// Bottom-right interior corner
+// ================================
+translate([
+    housing_width - 2 * wall_thickness,
+    wall_thickness,
+    0
+]) {
+    rotate([0, 0, 45]) {
+        output_corner_reinforcement(
+            chamfer_len = internal_chamfer_len,
+            line_len    = line_len,
+            height      = box_height * 2
+        );
+    }
+   }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    // ================================
+// Top-left interior corner
+// ================================
+translate([
+    wall_thickness * 2,
+    housing_length - wall_thickness,
+    0
+]) {
+    rotate([0, 0, -135]) {
+        output_corner_reinforcement(
+            chamfer_len = internal_chamfer_len,
+            line_len    = line_len,
+            height      = box_height * 2
+        );
+    }
 }
+
+// ================================
+// Top-right interior corner
+// ================================
+translate([
+    housing_width - wall_thickness,
+    housing_length - wall_thickness * 2,
+    0
+]) {
+    rotate([0, 0, 135]) {
+        output_corner_reinforcement(
+            chamfer_len = internal_chamfer_len,
+            line_len    = line_len,
+            height      = box_height * 2
+        );
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+}
+
+
+ 
 
 // ============================================================================
 // TOP HOUSING HALF
