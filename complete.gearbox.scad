@@ -153,10 +153,14 @@ nema17_hole4_x = input_x + nema17_hole_spacing / 2;
 nema17_hole4_y = input_y + nema17_hole_spacing / 2;
 
 // Output end mounting holes (opposite end)
-output_hole1_x = input_x - nema17_hole_spacing / 2;
-output_hole1_y = housing_length - nema17_hole_edge_distance;
-output_hole2_x = input_x + nema17_hole_spacing / 2;
-output_hole2_y = housing_length - nema17_hole_edge_distance;
+output_hole_edge_distance = 7;    // Distance from output hole center to wall edge
+output_hole_diameter = 4.2;       // M4 mounting holes at output end
+output_hole_tolerance = 0.2;      //clearance for M4 mounting holes at output end
+
+output_hole1_x = output_hole_edge_distance;
+output_hole1_y = housing_length - output_hole_edge_distance;
+output_hole2_x = housing_width - output_hole_edge_distance;
+output_hole2_y = housing_length - output_hole_edge_distance;
 
 // corner chamfer   
 box_chamfer_width = wall_thickness;
@@ -233,12 +237,11 @@ difference() {
     
     // Output end mounting holes
     translate([output_hole1_x, output_hole1_y, 0])
-        cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
+        cylinder(d = output_hole_diameter + output_hole_tolerance, h = box_height);
     translate([output_hole2_x, output_hole2_y, 0])
-        cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
-        
+        cylinder(d = output_hole_diameter + output_hole_tolerance, h = box_height);
+ 
     // Box chamfers
-      
     cutting_width = 5/2;
     translate([cutting_width/sqrt(2), -cutting_width/sqrt(2), 0]){
       rotate([0,0,45]) {
@@ -349,14 +352,14 @@ translate([housing_width, 0, z_offset_top_housing]) {
             translate([nema17_hole4_x, nema17_hole4_y, 0])
                 cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
             
+            
             // Output end mounting holes
             translate([output_hole1_x, output_hole1_y, 0])
-                cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
+                cylinder(d = output_hole_diameter + output_hole_tolerance, h = box_height);
             translate([output_hole2_x, output_hole2_y, 0])
-                cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
+                cylinder(d = output_hole_diameter + output_hole_tolerance, h = box_height);
                 
             // Box chamfers
-              
             cutting_width = 5/2;
             translate([cutting_width/sqrt(2), -cutting_width/sqrt(2), 0]){
               rotate([0,0,45]) {
