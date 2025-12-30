@@ -93,7 +93,7 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // ============================================================================
 
 
-wall_to_gear_clearance = 5;
+wall_to_gear_clearance = 12;
 housing_width = 50;                // X dimension (matches NEMA17)
 
 //housing_length = 56;
@@ -153,10 +153,14 @@ nema17_hole4_x = input_x + nema17_hole_spacing / 2;
 nema17_hole4_y = input_y + nema17_hole_spacing / 2;
 
 // Output end mounting holes (opposite end)
-output_hole1_x = input_x - nema17_hole_spacing / 2;
-output_hole1_y = housing_length - nema17_hole_edge_distance;
-output_hole2_x = input_x + nema17_hole_spacing / 2;
-output_hole2_y = housing_length - nema17_hole_edge_distance;
+output_hole_edge_distance = 7;    // Distance from output hole center to wall edge
+output_hole_diameter = 4.2;       // M4 mounting holes at output end
+output_hole_tolerance = 0.2;      //clearance for M4 mounting holes at output end
+
+output_hole1_x = output_hole_edge_distance;
+output_hole1_y = housing_length - output_hole_edge_distance;
+output_hole2_x = housing_width - output_hole_edge_distance;
+output_hole2_y = housing_length - output_hole_edge_distance;
 
 // corner chamfer   
 box_chamfer_width = wall_thickness;
@@ -166,6 +170,34 @@ module corner_chamfer(box_chamfer_width, box_chamfer_size) {
   cube([box_chamfer_width, box_chamfer_size, box_height]);
 }
 
+// ==========================
+// Helper function
+// ==========================
+function polar(len, angle_deg) =
+    [ len * cos(angle_deg), len * sin(angle_deg) ];
+
+// ==========================
+// Module output_corner_reinforcement
+// ==========================
+module output_corner_reinforcement(chamfer_len, line_len, height)
+{
+    // Reference chamfer (XY plane, z = 0)
+    p0 = [0, 0];
+    p1 = [chamfer_len, 0];
+
+    // Constructed edges
+    p2 = p1 + polar(line_len,  45);   // +45° from right chamfer point
+    p3 = p0 + polar(line_len, 135);   // 135° from left chamfer point
+
+    // Extrude from z = 0 to z = height
+    linear_extrude(height = height)
+        polygon(points = [
+            p0,
+            p1,
+            p2,
+            p3
+        ]);
+}
 
 // Visualization offsets
 z_offset_top_housing = 100;
@@ -233,12 +265,11 @@ difference() {
     
     // Output end mounting holes
     translate([output_hole1_x, output_hole1_y, 0])
-        cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
+        cylinder(d = output_hole_diameter + output_hole_tolerance, h = box_height);
     translate([output_hole2_x, output_hole2_y, 0])
-        cylinder(d = nema17_hole_diameter + clearance_screw_hole, h = box_height);
-        
+        cylinder(d = output_hole_diameter + output_hole_tolerance, h = box_height);
+ 
     // Box chamfers
-      
     cutting_width = 5/2;
     translate([cutting_width/sqrt(2), -cutting_width/sqrt(2), 0]){
       rotate([0,0,45]) {
@@ -292,27 +323,89 @@ translate([box_chamfer_size/sqrt(2), 0, 0]){
 }
 
 
-// Bottom-right corner
-translate([housing_width, box_chamfer_size/sqrt(2), 0]){
-  rotate([0,0,135]) {
-    corner_chamfer(box_chamfer_width, box_chamfer_size);
+  // Bottom-right corner
+  translate([housing_width, box_chamfer_size/sqrt(2), 0]){
+    rotate([0,0,135]) {
+      corner_chamfer(box_chamfer_width, box_chamfer_size);
+    }
+  }
+
+  // Top-left corner
+  translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
+    rotate([0,0,315]) {
+      corner_chamfer(box_chamfer_width, box_chamfer_size);
+    }
+  }
+
+
+  // Top-right corner
+  translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]) {
+    rotate([0,0,225]) {
+      corner_chamfer(box_chamfer_width, box_chamfer_size);
+    }
+  }
+    
+    
+    
+
+line_len = 16;
+internal_chamfer_len = 2 * wall_thickness / sqrt(2);
+
+local_hole_x = wall_thickness * (sqrt(2) / 2);
+local_hole_y = (2 * output_hole_edge_distance - 3 * wall_thickness) * (sqrt(2) / 2);
+hole_diam = output_hole_diameter + output_hole_tolerance;
+    
+reinforcement_height = box_height * 2 - floor_thickness;
+
+
+// Bottom-left interior corner
+translate([wall_thickness, wall_thickness + internal_chamfer_len / sqrt(2), 0]) {
+rotate([0, 0, -45]) {
+output_corner_reinforcement(
+chamfer_len = internal_chamfer_len,
+line_len = 6,
+height = reinforcement_height
+);
+}
+}
+// Bottom-right interior corner
+translate([housing_width - 2 * wall_thickness, wall_thickness, 0]) {
+rotate([0, 0, 45]) {
+output_corner_reinforcement(
+chamfer_len = internal_chamfer_len,
+line_len = 6,
+height = reinforcement_height
+);
+}
+}
+   
+// Top-left interior corner
+translate([wall_thickness * 2, housing_length - wall_thickness, 0]) {
+rotate([0, 0, -135]) {
+difference() {
+      output_corner_reinforcement(
+      chamfer_len = internal_chamfer_len,
+      line_len = line_len,
+      height = reinforcement_height 
+      );
+      translate([local_hole_x, local_hole_y, -0.1])
+      cylinder(d = hole_diam, h = reinforcement_height + 0.2);
+    }
   }
 }
 
-// Top-left corner
-translate([0, housing_length - box_chamfer_size/sqrt(2), 0]){
-  rotate([0,0,315]) {
-    corner_chamfer(box_chamfer_width, box_chamfer_size);
+// Top-right interior corner
+translate([housing_width - wall_thickness, housing_length - wall_thickness * 2, 0]) {
+rotate([0, 0, 135]) {
+  difference() {
+    output_corner_reinforcement(
+    chamfer_len = internal_chamfer_len,
+    line_len = line_len,
+    height = reinforcement_height
+    );
+    translate([local_hole_x, local_hole_y, -0.1])
+    cylinder(d = hole_diam, h = reinforcement_height + 0.2);
   }
 }
-
-
-// Top-right corner
-translate([housing_width - box_chamfer_size/sqrt(2), housing_length, 0]){
-  rotate([0,0,225]) {
-    corner_chamfer(box_chamfer_width, box_chamfer_size);
-  }
+      
 }
-
-
-
