@@ -93,7 +93,7 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // ============================================================================
 
 
-wall_to_gear_clearance = 12;
+wall_to_gear_clearance = 10;
 housing_width = 50;                // X dimension (matches NEMA17)
 
 //housing_length = 56;
@@ -199,9 +199,20 @@ module output_corner_reinforcement(chamfer_len, line_len, height)
         ]);
 }
 
+box_chamfer_size = 5; 
+line_len = 14;
+internal_chamfer_len = 2 * wall_thickness / sqrt(2);
+
+local_hole_x = wall_thickness * (sqrt(2) / 2);
+local_hole_y = (2 * output_hole_edge_distance - 3 * wall_thickness) * (sqrt(2) / 2);
+hole_diam = output_hole_diameter + output_hole_tolerance;
+    
+reinforcement_height = box_height * 2 - floor_thickness;
+
+
 // Visualization offsets
 z_offset_top_housing = 100;
-z_offset_gears = 40;
+z_offset_gears = 20;
 
 // ============================================================================
 // BOTTOM HOUSING HALF
@@ -315,7 +326,6 @@ translate([output_x, output_y, bearing_pocket_depth])
         cylinder(d = bearing_retainer_id, h = bearing_retainer_height + 0.2);
     }
 
-box_chamfer_size = 5; 
 translate([box_chamfer_size/sqrt(2), 0, 0]){
   rotate([0,0,45]) {
     corner_chamfer(box_chamfer_width, box_chamfer_size);
@@ -344,18 +354,6 @@ translate([box_chamfer_size/sqrt(2), 0, 0]){
       corner_chamfer(box_chamfer_width, box_chamfer_size);
     }
   }
-    
-    
-    
-
-line_len = 16;
-internal_chamfer_len = 2 * wall_thickness / sqrt(2);
-
-local_hole_x = wall_thickness * (sqrt(2) / 2);
-local_hole_y = (2 * output_hole_edge_distance - 3 * wall_thickness) * (sqrt(2) / 2);
-hole_diam = output_hole_diameter + output_hole_tolerance;
-    
-reinforcement_height = box_height * 2 - floor_thickness;
 
 
 // Bottom-left interior corner
@@ -363,7 +361,7 @@ translate([wall_thickness, wall_thickness + internal_chamfer_len / sqrt(2), 0]) 
 rotate([0, 0, -45]) {
 output_corner_reinforcement(
 chamfer_len = internal_chamfer_len,
-line_len = 6,
+line_len = 5,
 height = reinforcement_height
 );
 }
@@ -373,7 +371,7 @@ translate([housing_width - 2 * wall_thickness, wall_thickness, 0]) {
 rotate([0, 0, 45]) {
 output_corner_reinforcement(
 chamfer_len = internal_chamfer_len,
-line_len = 6,
+line_len = 5,
 height = reinforcement_height
 );
 }

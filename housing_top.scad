@@ -93,7 +93,7 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // ============================================================================
 
 
-wall_to_gear_clearance = 12;
+wall_to_gear_clearance = 10;
 housing_width = 50;                // X dimension (matches NEMA17)
 
 //housing_length = 56;
@@ -164,7 +164,7 @@ output_hole2_y = housing_length - output_hole_edge_distance;
 
 // corner chamfer   
 box_chamfer_width = wall_thickness;
-box_chamfer_size = 5;    
+   
 
 module corner_chamfer(box_chamfer_width, box_chamfer_size) {
   cube([box_chamfer_width, box_chamfer_size, box_height]);
@@ -199,8 +199,8 @@ module output_corner_reinforcement(chamfer_len, line_len, height)
         ]);
 }
 
-
-line_len = 16;
+box_chamfer_size = 5; 
+line_len = 14;
 internal_chamfer_len = 2 * wall_thickness / sqrt(2);
 
 local_hole_x = wall_thickness * (sqrt(2) / 2);
@@ -209,6 +209,9 @@ hole_diam = output_hole_diameter + output_hole_tolerance;
     
 reinforcement_height = box_height * 2 - floor_thickness;
 
+// Visualization offsets
+z_offset_top_housing = 100;
+z_offset_gears = 20;
 
 // ============================================================================
 // TOP HOUSING HALF

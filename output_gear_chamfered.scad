@@ -93,7 +93,7 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // ============================================================================
 
 
-wall_to_gear_clearance = 5;
+wall_to_gear_clearance = 10;
 housing_width = 50;                // X dimension (matches NEMA17)
 
 //housing_length = 56;
@@ -107,10 +107,10 @@ bearing_retainer_height = 2.0;     // Retainer ring height
 bearing_retainer_id = 7.0;         // Retainer inner diameter
 boss_diameter = bearing_od + clearance_bearing_pocket + 10;
 
-clearance_internal_bottom = 1;   // Clearance below gears
-clearance_internal_top = 1;      // Clearance above gears
+clearance_internal_bottom = 1.5;   // Clearance below gears
+clearance_internal_top = 1.5;      // Clearance above gears
 
-box_height =  (
+box_height = (floor_thickness * 2 +          
               clearance_internal_bottom + 
               clearance_internal_top +
               max(hub_height_input, hub_height_output) + 
@@ -153,14 +153,71 @@ nema17_hole4_x = input_x + nema17_hole_spacing / 2;
 nema17_hole4_y = input_y + nema17_hole_spacing / 2;
 
 // Output end mounting holes (opposite end)
-output_hole1_x = input_x - nema17_hole_spacing / 2;
-output_hole1_y = housing_length - nema17_hole_edge_distance;
-output_hole2_x = input_x + nema17_hole_spacing / 2;
-output_hole2_y = housing_length - nema17_hole_edge_distance;
+output_hole_edge_distance = 7;    // Distance from output hole center to wall edge
+output_hole_diameter = 4.2;       // M4 mounting holes at output end
+output_hole_tolerance = 0.2;      //clearance for M4 mounting holes at output end
+
+output_hole1_x = output_hole_edge_distance;
+output_hole1_y = housing_length - output_hole_edge_distance;
+output_hole2_x = housing_width - output_hole_edge_distance;
+output_hole2_y = housing_length - output_hole_edge_distance;
+
+// corner chamfer   
+box_chamfer_width = wall_thickness;
+   
+
+module corner_chamfer(box_chamfer_width, box_chamfer_size) {
+  cube([box_chamfer_width, box_chamfer_size, box_height]);
+}
+
+// ==========================
+// Helper function
+// ==========================
+function polar(len, angle_deg) =
+    [ len * cos(angle_deg), len * sin(angle_deg) ];
+
+// ==========================
+// Module output_corner_reinforcement
+// ==========================
+module output_corner_reinforcement(chamfer_len, line_len, height)
+{
+    // Reference chamfer (XY plane, z = 0)
+    p0 = [0, 0];
+    p1 = [chamfer_len, 0];
+
+    // Constructed edges
+    p2 = p1 + polar(line_len,  45);   // +45° from right chamfer point
+    p3 = p0 + polar(line_len, 135);   // 135° from left chamfer point
+
+    // Extrude from z = 0 to z = height
+    linear_extrude(height = height)
+        polygon(points = [
+            p0,
+            p1,
+            p2,
+            p3
+        ]);
+}
+
+box_chamfer_size = 5; 
+line_len = 14;
+internal_chamfer_len = 2 * wall_thickness / sqrt(2);
+
+local_hole_x = wall_thickness * (sqrt(2) / 2);
+local_hole_y = (2 * output_hole_edge_distance - 3 * wall_thickness) * (sqrt(2) / 2);
+hole_diam = output_hole_diameter + output_hole_tolerance;
+    
+reinforcement_height = box_height * 2 - floor_thickness;
+
+
+// Visualization offsets
+z_offset_top_housing = 100;
+z_offset_gears = 20;
+
 
 // OUTPUT GEAR (Green)
 color("lightgreen")
-translate([0,0,0]) {
+translate([0, 0, 0]) {
   rotate([0,0,0]) {
     intersection() {
           translate([0, 0, gear_thickness / 2]) {
