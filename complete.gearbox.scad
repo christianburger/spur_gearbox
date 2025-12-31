@@ -93,7 +93,7 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // ============================================================================
 
 
-wall_to_gear_clearance = 10;
+wall_to_gear_clearance = 6;
 housing_width = 50;                // X dimension (matches NEMA17)
 
 //housing_length = 56;

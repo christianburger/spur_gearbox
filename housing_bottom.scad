@@ -93,7 +93,7 @@ nema17_hole_edge_distance = 5.65; // Distance from hole center to motor edge
 // ============================================================================
 
 
-wall_to_gear_clearance = 10;
+wall_to_gear_clearance = 6;
 housing_width = 50;                // X dimension (matches NEMA17)
 
 //housing_length = 56;
@@ -356,53 +356,56 @@ translate([box_chamfer_size/sqrt(2), 0, 0]){
   }
 
 
-  // Bottom-left interior corner
-  translate([wall_thickness, wall_thickness + internal_chamfer_len / sqrt(2), 0]) {
-      rotate([0, 0, -45]) {
-      output_corner_reinforcement(
-      chamfer_len = internal_chamfer_len,
-      line_len = 5,
-      height = reinforcement_height
-      );
-    }
-  }
-  // Bottom-right interior corner
-  translate([housing_width - 2 * wall_thickness, wall_thickness, 0]) {
-    rotate([0, 0, 45]) {
-      output_corner_reinforcement(
-      chamfer_len = internal_chamfer_len,
-      line_len = 5,
-      height = reinforcement_height
-    );
-    }
-  }
-     
-  // Top-left interior corner
-  translate([wall_thickness * 2, housing_length - wall_thickness, 0]) {
-  rotate([0, 0, -135]) {
-  difference() {
-        output_corner_reinforcement(
-        chamfer_len = internal_chamfer_len,
-        line_len = line_len,
-        height = reinforcement_height 
-        );
-        translate([local_hole_x, local_hole_y, -0.1])
-        cylinder(d = hole_diam, h = reinforcement_height + 0.2);
-      }
-    }
-  }
-
-  // Top-right interior corner
-  translate([housing_width - wall_thickness, housing_length - wall_thickness * 2, 0]) {
-  rotate([0, 0, 135]) {
-    difference() {
+// Bottom-left interior corner
+translate([wall_thickness, wall_thickness + internal_chamfer_len / sqrt(2), 0]) {
+rotate([0, 0, -45]) {
+output_corner_reinforcement(
+chamfer_len = internal_chamfer_len,
+line_len = 5,
+height = reinforcement_height
+);
+}
+}
+// Bottom-right interior corner
+translate([housing_width - 2 * wall_thickness, wall_thickness, 0]) {
+rotate([0, 0, 45]) {
+output_corner_reinforcement(
+chamfer_len = internal_chamfer_len,
+line_len = 5,
+height = reinforcement_height
+);
+}
+}
+   
+// Top-left interior corner
+translate([wall_thickness * 2, housing_length - wall_thickness, 0]) {
+rotate([0, 0, -135]) {
+difference() {
       output_corner_reinforcement(
       chamfer_len = internal_chamfer_len,
       line_len = line_len,
-      height = reinforcement_height
+      height = reinforcement_height 
       );
       translate([local_hole_x, local_hole_y, -0.1])
       cylinder(d = hole_diam, h = reinforcement_height + 0.2);
     }
   }
+}
+
+// Top-right interior corner
+translate([housing_width - wall_thickness, housing_length - wall_thickness * 2, 0]) {
+rotate([0, 0, 135]) {
+  difference() {
+    output_corner_reinforcement(
+    chamfer_len = internal_chamfer_len,
+    line_len = line_len,
+    height = reinforcement_height
+    );
+    translate([local_hole_x, local_hole_y, -0.1])
+    cylinder(d = hole_diam, h = reinforcement_height + 0.2);
+  }
+}
+    
+ 
+    
 }
